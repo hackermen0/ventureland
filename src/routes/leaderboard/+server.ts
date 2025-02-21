@@ -1,17 +1,13 @@
 import { connectToDatabase } from "$lib/db";
 import type { ChangeStream, ChangeStreamDocument, WithId } from "mongodb";
+import type { User } from "../../types/User.js";
 
-type LeaderboardEntry = {
-    _id: string;
-    name: string;
-    points: number;
-};
 
 export async function GET({ setHeaders }) {
     const db = await connectToDatabase();
-    const collection = db.collection<LeaderboardEntry>("Leaderboard");
+    const collection = db.collection<User>("Leaderboard");
 
-    const changeStream: ChangeStream<WithId<LeaderboardEntry>> = collection.watch([], { fullDocument: "updateLookup" });
+    const changeStream: ChangeStream<WithId<User>> = collection.watch([], { fullDocument: "updateLookup" });
 
     setHeaders({
         "Content-Type": "text/event-stream",
@@ -22,10 +18,10 @@ export async function GET({ setHeaders }) {
     return new Response(
         new ReadableStream({
             start(controller) {
-                let isClosed = false; // Track stream state
+                let isClosed = false;
 
-                const sendData = (change: ChangeStreamDocument<WithId<LeaderboardEntry>>) => {
-                    if (isClosed) return; // Prevent writing to closed stream
+                const sendData = (change: ChangeStreamDocument<WithId<User>>) => {
+                    if (isClosed) return;
 
                     if (change.operationType === "insert" || change.operationType === "update") {
                         const updatedDocument = change.fullDocument;
@@ -46,7 +42,6 @@ export async function GET({ setHeaders }) {
                     }
                 });
 
-                // Override close to ensure proper cleanup
                 const originalClose = controller.close.bind(controller);
                 controller.close = () => {
                     if (!isClosed) {

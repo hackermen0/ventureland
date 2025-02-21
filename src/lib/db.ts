@@ -14,9 +14,9 @@ let db: Db;
 
 export async function connectToDatabase(): Promise<Db> {
   if (!client) {
-    client = new MongoClient(MONGODB_URI);
+    client = new MongoClient(MONGODB_URI, {minPoolSize : 100, maxPoolSize : 1000}); // Setting Pool Size to mitigate performance issues
     await client.connect();
-    db = client.db('E-Summit'); // specify the database name, e.g., client.db('my-database')
+    db = client.db('E-Summit');
     console.log('Connected to MongoDB');
   }
   
