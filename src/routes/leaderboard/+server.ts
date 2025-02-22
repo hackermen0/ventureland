@@ -1,13 +1,13 @@
 import { connectToDatabase } from "$lib/db";
 import type { ChangeStream, ChangeStreamDocument, WithId } from "mongodb";
-import type { User } from "../../types/User.js";
+import type { LeaderboardEntry } from "../../types/LeaderboardEntry.js";
 
 
 export async function GET({ setHeaders }) {
     const db = await connectToDatabase();
-    const collection = db.collection<User>("Leaderboard");
+    const collection = db.collection<LeaderboardEntry>("Leaderboard");
 
-    const changeStream: ChangeStream<WithId<User>> = collection.watch([], { fullDocument: "updateLookup" });
+    const changeStream: ChangeStream<WithId<LeaderboardEntry>> = collection.watch([], { fullDocument: "updateLookup" });
 
     setHeaders({
         "Content-Type": "text/event-stream",
@@ -20,13 +20,25 @@ export async function GET({ setHeaders }) {
             start(controller) {
                 let isClosed = false;
 
-                const sendData = (change: ChangeStreamDocument<WithId<User>>) => {
+                const sendData = (change: ChangeStreamDocument<WithId<LeaderboardEntry>>) => {
                     if (isClosed) return;
 
                     if (change.operationType === "insert" || change.operationType === "update") {
                         const updatedDocument = change.fullDocument;
+                        console.log(`LEADERBOARD_ENTRY CREATION ID: ${updatedDocument?._id}`)
+                        // console.log(updatedDocument)
                         if (updatedDocument) {
+                            controller.enqueue("event: update\n")
                             controller.enqueue(`data: ${JSON.stringify(updatedDocument)}\n\n`);
+                        }
+                    }
+                    else if(change.operationType == "delete") {
+                        const deletedDocument = change.documentKey;
+                        console.log(`LEADERBOARD_ENTRY DELETION ID: ${deletedDocument._id}`)
+                        // console.log(deletedDocument)
+                        if( deletedDocument ) {
+                            controller.enqueue("event: delete\n")
+                            controller.enqueue(`data: ${JSON.stringify(deletedDocument)}\n\n`)
                         }
                     }
                 };

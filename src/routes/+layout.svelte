@@ -11,7 +11,7 @@
 			</div>
 			<div class="flex flex-row gap-4 mr-4">
 				<a href="/leaderboard" class="underline hover:text-gray-600">Leaderboard</a>
-				<a href="/admin" class="underline hover:text-gray-600">Admin</a>
+				<a href="/register" class="underline hover:text-gray-600">Register</a>
 			</div>
     </nav>
 </div>
