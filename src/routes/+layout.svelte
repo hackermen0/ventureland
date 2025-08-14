@@ -1,6 +1,7 @@
 <script lang="ts">
 	import '../app.css';
-	let { children } = $props();
+	let { children, data } = $props();
+	console.log(data)
 </script>
 
 <div>
@@ -9,10 +10,18 @@
 			<div>
 				<a href="/" class="btn btn-ghost text-md md:text-xl">Ventureland</a>
 			</div>
-			<div class="flex flex-row gap-4 mr-4">
-				<a href="/leaderboard" class="underline hover:text-gray-600">Leaderboard</a>
-				<a href="/register" class="underline hover:text-gray-600">Register</a>
-			</div>
+			{#if data.userData?.userData}				
+				<div class="flex flex-row gap-4 mr-4">
+					<a href="/leaderboard" class="underline hover:text-gray-600">Leaderboard</a>
+					<a href="/register" class="underline hover:text-gray-600">Register</a>
+				</div>
+			{:else}
+				<div>
+					<a href="/login">
+						<button class="btn btn-primary">Login</button>
+					</a>
+				</div>
+			{/if}
     </nav>
 </div>
 
