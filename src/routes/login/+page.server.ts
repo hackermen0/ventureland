@@ -1,6 +1,6 @@
 import { connectToDatabase } from "$lib/db";
 import type { Actions, ServerLoad } from "@sveltejs/kit";
-import type { User } from "../../types/User.js";
+import type { Admin } from "../../types/Admin";
 import type { WithId } from "mongodb";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -26,12 +26,12 @@ export const actions : Actions =  {
         
 
         const db = await connectToDatabase();
-        const collection = db.collection<User>("Leaderboard");
+        const collection = db.collection<Admin>("Admins");
 
         if(username && password){
-            const userData : WithId<User> | null = await collection.findOne({name : username});
+            const userData : WithId<Admin> | null = await collection.findOne({name : username});
 
-            console.log(userData);
+            console.log("USER DATA SERVER: ", userData);
 
             if(!userData){
                 return {error : "User not found"}
@@ -45,19 +45,21 @@ export const actions : Actions =  {
 
                 const userID = userData._id;
                 if(SECRET){
-                    const token = jwt.sign({userID, userData : userData}, SECRET, {expiresIn : "24h"});
+                    const token = jwt.sign(userData, SECRET, {expiresIn : "24h"});
 
                     cookies.set("token", token, {
                         httpOnly : true,
+                        secure: false,
+                        sameSite: 'lax',
                         path : "/",
                         maxAge : 86400,
                     })
 
                     console.log("LOGIN SUCCESSFUL");
 
-                    locals.user = {userID, userData};
+                    locals.user = userData;
 
-                    throw redirect(201, "/")
+                    throw redirect(302, "/leaderboard")
 
                 } else {
                     console.error("SECRET MISSING");

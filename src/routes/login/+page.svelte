@@ -2,8 +2,6 @@
 
   let formData = $props()
 
-  
-  console.log(formData);
 </script>
 
 <div>

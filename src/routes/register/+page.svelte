@@ -33,8 +33,8 @@
                 <input type="text" class="grow" name="name" id="name"/>
             </label>
             <label class="input input-bordered flex items-center gap-2 w-80">
-                Points
-                <input type="number" class="grow" name="points" id="points"/>
+                Password
+                <input type="password" class="grow" name="password" id="password"/>
             </label>
             <button class="btn" type="submit">Submit</button>
         </div>

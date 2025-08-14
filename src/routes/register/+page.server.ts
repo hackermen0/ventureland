@@ -1,6 +1,6 @@
 import type { Actions } from "@sveltejs/kit";
 import { connectToDatabase } from "$lib/db";
-import type { User } from "../../types/User.js";
+import type { Admin } from "../../types/Admin";
 import { randomUUID, randomBytes } from "crypto";
 import bcrypt from "bcryptjs"
 
@@ -9,15 +9,15 @@ export const actions: Actions = {
     update: async({ request }) => {
 
         const db = await connectToDatabase();
-        const collection = db.collection<User>("Leaderboard");
+        const collection = db.collection<Admin>("Admins")
 
         const data = await request.formData();
         const name = data.get("name") as string | null;
-        const points = data.get("points") as string | null;
+        const password = data.get("password") as string | null;
         const id = randomUUID()
-        const password = randomBytes(4).toString("hex");
+        // const password = randomBytes(4).toString("hex");
 
-        console.log(name, points, id, password)
+        console.log(name, id, password)
 
 
         if(password) {
@@ -27,8 +27,7 @@ export const actions: Actions = {
                 _id : id,
                 name : name ? name : "",
                 hashedPassword : hashedPassword,
-                admin : false,
-                points : points ? parseInt(points) : 0
+                // points : points ? parseInt(points) : 0
             }
     
             collection.insertOne(insertDict)
