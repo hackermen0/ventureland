@@ -2,6 +2,7 @@
     import { onMount, onDestroy } from "svelte";
     import { enhance } from "$app/forms";
     import type { User } from "../../types/User.js";
+    import backdrop from "../../../static/backdrop.png"
 
     export let data;
     let users: Array<User> = data.data as User[];
@@ -33,14 +34,18 @@
         });
     });
 </script>
-<div class="flex justify-center items-center w-full h-full">
+<div class="flex justify-center items-center w-full h-full min-h-screen"
+    style="background-image: url('..');
+        background-size: cover;
+    "
+>
     <div class="px-4 py-8 flex flex-col gap-4 w-full">
         <p class="text-3xl mb-4">Leaderboard</p>
         <form action="?/delete" method="POST" use:enhance>       
             <div class="flex flex-col gap-6">
                 {#if users.length !== 0}          
                     {#each users as user, index (user._id)}
-                        <div class="w-full h-12 border border-white rounded-xl flex flex-row justify-between">
+                        <div class={`w-full h-12 rounded-xl flex flex-row justify-between ${index % 2 == 0 ? "bg-[#435e36]" : "bg-[#6d9755]"}`}>
                             <div class="mt-2 ml-3">{index + 1}. {user.name}</div>
                             <div class="flex flex-row align-middle gap-4">
                                 <input type="hidden" name="id" id="id" value="{user._id}">

@@ -1,14 +1,13 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
+
+import type { AuthPayload } from "./types/Auth";
+
 // for information about these interfaces
 declare global {
 	namespace App {
 		// interface Error {}
 		interface Locals {
-			user? : {
-				_id : string;
-				name : string;
-				hashedPassword : string;
-			} | null
+			user? : AuthPayload | null
 		}
 		// interface PageData {}
 		// interface PageState {}

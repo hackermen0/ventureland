@@ -1,6 +1,7 @@
 import { connectToDatabase } from "$lib/db";
 import type { Actions, ServerLoad } from "@sveltejs/kit";
-import type { Admin } from "../../types/Admin";
+import type { Admin } from "../../types/Admin.js";
+import type { AuthPayload } from "../../types/Auth.js";
 import type { WithId } from "mongodb";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -23,8 +24,6 @@ export const actions : Actions =  {
         const username = data.get("username");
         const password : string | null = data.get("password") as string;
 
-        
-
         const db = await connectToDatabase();
         const collection = db.collection<Admin>("Admins");
 
@@ -42,10 +41,19 @@ export const actions : Actions =  {
             console.log(passwordMatch)
 
             if(passwordMatch){
-
-                const userID = userData._id;
                 if(SECRET){
-                    const token = jwt.sign(userData, SECRET, {expiresIn : "24h"});
+                    // Create the payload structure that matches your JWT
+                    const payload: AuthPayload = {
+                        userData: {
+                            _id: userData._id.toString(),
+                            name: userData.name,
+                            hashedPassword: userData.hashedPassword
+                        },
+                        // exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // 24 hours
+                        // iat: Math.floor(Date.now() / 1000)
+                    };
+
+                    const token = jwt.sign(payload, SECRET, {expiresIn : "24h"});
 
                     cookies.set("token", token, {
                         httpOnly : true,
@@ -57,7 +65,7 @@ export const actions : Actions =  {
 
                     console.log("LOGIN SUCCESSFUL");
 
-                    locals.user = userData;
+                    locals.user = payload;
 
                     throw redirect(302, "/leaderboard")
 
@@ -69,8 +77,5 @@ export const actions : Actions =  {
                 console.log("WRONG PASSWORD");
             }
         }
-
-
-
     }
 }

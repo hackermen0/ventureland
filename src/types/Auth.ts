@@ -1,5 +1,7 @@
+import type { Admin } from "./Admin";
+
 export interface AuthPayload {
-    _id: string;
-    name: string;
-    hashedPassword: string;
+    userData: Admin;
+    // exp: number;
+    // iat: number;
 }
