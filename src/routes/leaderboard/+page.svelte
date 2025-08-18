@@ -35,10 +35,14 @@
     });
 </script>
 <div class="flex justify-center items-center w-full h-full min-h-screen"
-    style="background-image: url('..');
-        background-size: cover;
+    style="background-image: url('https://ik.imagekit.io/ecellkiit/E-Cell%20Website/image%206.webp?updatedAt=1755186624210');
+        background-size: contain;
+        background-position: center;
+        background-repeat:
     "
 >
+
+    <div class="absolute top-0 left-0 bg-black z-20"></div>
     <div class="px-4 py-8 flex flex-col gap-4 w-full">
         <p class="text-3xl mb-4">Leaderboard</p>
         <form action="?/delete" method="POST" use:enhance>       
