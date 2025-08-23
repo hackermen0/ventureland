@@ -2,7 +2,6 @@ import { connectToDatabase } from "$lib/db";
 import type { ChangeStream, ChangeStreamDocument, WithId } from "mongodb";
 import type { User } from "../../types/User.js";
 
-
 export async function GET({ setHeaders }) {
     const db = await connectToDatabase();
     const collection = db.collection<User>("Leaderboard");
@@ -24,21 +23,31 @@ export async function GET({ setHeaders }) {
                     if (isClosed) return;
 
                     if (change.operationType === "insert" || change.operationType === "update") {
-                        const updatedDocument = change.fullDocument;
-                        console.log(`LEADERBOARD_ENTRY CREATION ID: ${updatedDocument?._id}`)
+                        const rawDocument = change.fullDocument;
+                        console.log(`LEADERBOARD_ENTRY CREATION ID: ${rawDocument?._id}`);
 
-                        if (updatedDocument) {
-                            controller.enqueue("event: update\n")
-                            controller.enqueue(`data: ${JSON.stringify(updatedDocument)}\n\n`);
+                        if (rawDocument) {
+                            // Serialize the document to ensure compatibility
+                            const serializedDocument: User = {
+                                _id: rawDocument._id.toString(),
+                                name: rawDocument.name,
+                                email: rawDocument.email || "",
+                                discord_id: rawDocument.discord_id ? String(rawDocument.discord_id) : "",
+                                discord_name: rawDocument.discord_name || "",
+                                points: Number(rawDocument.points) || 0
+                            };
+                            
+                            controller.enqueue("event: update\n");
+                            controller.enqueue(`data: ${JSON.stringify(serializedDocument)}\n\n`);
                         }
                     }
-                    else if(change.operationType == "delete") {
+                    else if(change.operationType === "delete") {
                         const deletedDocument = change.documentKey;
-                        console.log(`LEADERBOARD_ENTRY DELETION ID: ${deletedDocument._id}`)
+                        console.log(`LEADERBOARD_ENTRY DELETION ID: ${deletedDocument._id}`);
 
                         if(deletedDocument) {
-                            controller.enqueue("event: delete\n")
-                            controller.enqueue(`data: ${JSON.stringify(deletedDocument)}\n\n`)
+                            controller.enqueue("event: delete\n");
+                            controller.enqueue(`data: ${JSON.stringify({_id: deletedDocument._id.toString()})}\n\n`);
                         }
                     }
                 };
